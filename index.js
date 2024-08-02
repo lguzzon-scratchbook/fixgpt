@@ -1,3 +1,3 @@
-const { refactor } = require("./core/refactor");
+const {refactor} = require('./core/refactor');
 
 exports.refactor = refactor;

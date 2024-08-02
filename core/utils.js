@@ -1,61 +1,62 @@
-import { input } from "@inquirer/prompts";
+import {input} from '@inquirer/prompts';
 
-function constructPrompt(obj) {
-  let prompt = "";
+function constructPrompt(object) {
+	let prompt = '';
 
-  for (const k in obj) {
-    if (obj[k].trim() !== "") {
-      prompt += `${k}:\n${obj[k]}\n\n`;
-    }
-  }
+	for (const k in object) {
+		if (object[k].trim() !== '') {
+			prompt += `${k}:\n${object[k]}\n\n`;
+		}
+	}
 
-  return prompt.trim();
+	return prompt.trim();
 }
 
 async function injectVariables({
-  text,
-  variables,
-  responses,
-  shouldInsertInline = true,
+	text,
+	variables,
+	responses,
+	shouldInsertInline = true,
 }) {
-  let nextText = text;
-  // for (const variableName in variables) {
-  //   nextText = nextText.replaceAll(
-  //     `[[variables.${snakeCase(variableName)}]]`,
-  //     variables[variableName].body.trim()
-  //   );
-  // }
+	let nextText = text;
+	// For (const variableName in variables) {
+	//   nextText = nextText.replaceAll(
+	//     `[[variables.${snakeCase(variableName)}]]`,
+	//     variables[variableName].body.trim()
+	//   );
+	// }
 
-  if (shouldInsertInline) {
-    nextText = await injectInlineVariables({ text: nextText });
-  }
+	if (shouldInsertInline) {
+		nextText = await injectInlineVariables({text: nextText});
+	}
 
-  for (const responseIdx in responses) {
-    const curResponse = responses[responseIdx];
-    for (const k in curResponse) {
-      nextText = nextText.replaceAll(
-        `[[responses.${responseIdx}.${k}]]`,
-        curResponse[k]
-      );
-    }
-  }
-  return nextText;
+	for (const responseIndex in responses) {
+		const currentResponse = responses[responseIndex];
+		for (const k in currentResponse) {
+			nextText = nextText.replaceAll(
+				`[[responses.${responseIndex}.${k}]]`,
+				currentResponse[k],
+			);
+		}
+	}
+
+	return nextText;
 }
 
-async function injectInlineVariables({ text }) {
-  let nextText = text;
+async function injectInlineVariables({text}) {
+	let nextText = text;
 
-  const askRegexp = /\[\[ask\.([A-z0-9-_]+)\.([A-z0-9-_]+)\]\]/g;
-  const questions = [...nextText.matchAll(askRegexp)];
-  const alreadyAsked = [];
-  for (const match of questions) {
-    const [string, type, name] = match;
-    if (!alreadyAsked.includes(name)) {
-      nextText = nextText.replaceAll(string, await input({ message: name }));
-    }
-  }
+	const askRegexp = /\[\[ask\.([A-z\d-_]+)\.([A-z\d-_]+)]]/g;
+	const questions = [...nextText.matchAll(askRegexp)];
+	const alreadyAsked = new Set([]);
+	for (const match of questions) {
+		const [string, type, name] = match;
+		if (!alreadyAsked.has(name)) {
+			nextText = nextText.replaceAll(string, await input({message: name}));
+		}
+	}
 
-  return nextText;
+	return nextText;
 }
 
-export { constructPrompt, injectVariables, injectInlineVariables };
+export {constructPrompt, injectVariables, injectInlineVariables};
