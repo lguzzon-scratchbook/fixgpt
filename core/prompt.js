@@ -26,6 +26,33 @@ export async function queryGPT3(token, messages) {
   }
 }
 
+export async function queryOpenRouterLG(token, messages) {
+  const configuration = new Configuration({
+    apiKey: token,
+    basePath: "https://openrouter.lguzzon.workers.dev/v1"
+  });
+  const openai = new OpenAIApi(configuration);
+  console.log(messages)
+  try {
+    const response = await openai.createChatCompletion({
+      // model: "openrouter/auto",
+      model: "anthropic/claude-3.5-sonnet:beta",
+      messages,
+      n: 1,
+      stop: null,
+      temperature: 0.0,
+    });
+    const content = response.data.choices[0].message.content;
+    if (content.startsWith("NULL")) {
+      throw new Error(content);
+    }
+    return content;
+  } catch (error) {
+    console.error("Error querying openrouter/auto:", error?.response?.data ?? error);
+    process.exit(1);
+  }
+}
+
 export function extractCode(text) {
   const tokens = parseMarkdown(text);
   let content = "";
@@ -49,3 +76,5 @@ export function extractCode(text) {
 
   return `${content.trim()}\n`;
 }
+
+export const queryGPT = queryOpenRouterLG;

@@ -4,7 +4,7 @@ import nanoclone from "nanoclone";
 import safeEval from "safe-eval";
 import { globSync } from "glob";
 
-import { queryGPT3, extractCode } from "./prompt.js";
+import { queryGPT, extractCode } from "./prompt.js";
 import { parseTree } from "./parse-tree.js";
 import {
   injectVariables,
@@ -145,7 +145,7 @@ async function refactor(token, template) {
 
 async function create({ token, instruction, file }) {
   console.log(`Create ${file}`);
-  const response = await queryGPT3(token, [
+  const response = await queryGPT(token, [
     { role: "system", content: system_prompt },
     {
       role: "user",
@@ -177,7 +177,7 @@ async function read({ token, file }) {
 async function update({ token, instruction, file }) {
   console.log(`Update ${file}`);
   const source = fs.readFileSync(file, "utf8");
-  const response = await queryGPT3(token, [
+  const response = await queryGPT(token, [
     { role: "system", content: system_prompt },
     {
       role: "user",
@@ -213,7 +213,7 @@ async function massUpdate({ token, instruction, files }) {
 async function removeIf({ token, condition, file }) {
   console.log(`Remove ${file}`);
   const source = fs.readFileSync(file, "utf8");
-  const response = await queryGPT3(token, [
+  const response = await queryGPT(token, [
     { role: "system", content: system_prompt },
     {
       role: "user",
